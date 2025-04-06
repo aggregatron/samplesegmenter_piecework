@@ -176,6 +176,36 @@ const footerPlane = new THREE.Mesh(footerGeometry, footerMaterial);
 // Position the footer plane
 scene.add(footerPlane);
 
+// Create a plane for the footer text
+const footerTextGeometry = new THREE.PlaneGeometry(30, 5); // Adjust width and height as needed
+const footerTextMaterial = new THREE.MeshBasicMaterial({
+  color: 0xffffff, // White text
+  transparent: true,
+});
+const footerTextPlane = new THREE.Mesh(footerTextGeometry, footerTextMaterial);
+
+// Add text texture
+const footerTextCanvas = document.createElement('canvas');
+const footerTextContext = footerTextCanvas.getContext('2d');
+footerTextCanvas.width = 512;
+footerTextCanvas.height = 128;
+footerTextContext.fillStyle = 'white';
+footerTextContext.font = '20px Arial';
+footerTextContext.textAlign = 'center';
+footerTextContext.fillText('from aggregatron | built by jrj', 256, 64);
+
+const footerTextTexture = new THREE.CanvasTexture(footerTextCanvas);
+footerTextMaterial.map = footerTextTexture;
+
+// Initial position
+footerTextPlane.position.set(0, -10, -30); // Start here
+scene.add(footerTextPlane);
+
+// Footer Text animation config
+let footerTextYTarget = -15;
+let footerTextSpeed = 0.02; // Smaller = slower, smoother
+
+
 
     // Create a sphere with the globe texture
     const globeGeometry = new THREE.SphereGeometry(5, 24, 10);
@@ -246,6 +276,12 @@ let footerAnimationStartTime = null; // Track when the animation starts
   const scale = 1 + 0.001 * Math.sin(elapsedTime * 2); // Calculate scale using a sine wave
   titlePlane.scale.set(scale, scale, scale); // Apply the scale to the title plane
 
+  footerTextPlane.position.y = THREE.MathUtils.lerp(
+    footerTextPlane.position.y,
+    footerTextYTarget,
+    footerTextSpeed
+  );
+
  // Animate the footer plane
  if (!footerAnimationStartTime) {
   footerAnimationStartTime = elapsedTime; // Set the start time for the footer animation
@@ -288,8 +324,34 @@ if (footerElapsedTime > footerAnimationDelay) {
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
       composer.setSize(window.innerWidth, window.innerHeight);
+
+      // Dynamically resize title and subtitle planes
+      const titleScaleFactor = window.innerWidth / 1920; // Adjust based on a reference width
+      titlePlane.scale.set(titleScaleFactor, titleScaleFactor, titleScaleFactor);
+
+      const subtitleScaleFactor = window.innerWidth / 1920; // Adjust based on a reference width
+      subtitlePlane.scale.set(subtitleScaleFactor, subtitleScaleFactor, subtitleScaleFactor);
+
+      // Adjust positions for mobile devices
+      if (window.innerWidth < 768) {
+        titlePlane.position.set(0, 48, -36);
+        subtitlePlane.position.set(0, 9, 2); // Slight vertical offset helps visibility
+        subtitlePlane.rotation.set(0, 0, 0); // Reset rotation for mobile
+        footerTextPlane.position.set(0, -15, -25); // Adjust for smaller screens
+        footerTargetPosition = { x: -32, y: 134, z: -140 };
+      } else {
+        titlePlane.position.set(0, 32, -20);
+        subtitlePlane.position.set(15, 29, -19);
+        subtitlePlane.rotation.set(0, 0, 0.2); // Restore tilt for desktop
+        footerTextPlane.position.set(0, -10, -30); // Default position for larger screens
+        footerTargetPosition = { x: -83, y: 116, z: -100 };
+      }
+      
     };
     window.addEventListener('resize', handleResize);
+
+    // Initial resize to set correct scale
+    handleResize();
 
     // Cleanup on unmount
     return () => {

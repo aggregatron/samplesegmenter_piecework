@@ -271,3 +271,11 @@ li:hover,
 span {
   font-size: 0.75rem;
 }
+
+@media (max-width: 768px) {
+  .control-group.horizontal {
+    flex-direction: column; /* Change to vertical layout */
+    align-items: flex-start; /* Align items to the start */
+    font-size: smaller;
+  }
+}
