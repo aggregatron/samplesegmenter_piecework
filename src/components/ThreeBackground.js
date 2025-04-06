@@ -61,6 +61,7 @@ const ThreeBackground = () => {
   const mountRef = useRef(null);
 
   useEffect(() => {
+    const mount = mountRef.current; // Capture the current value of mountRef
     // Scene, Camera, Renderer
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
@@ -72,7 +73,7 @@ const ThreeBackground = () => {
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setClearColor(0x000000); // Black background
-    mountRef.current.appendChild(renderer.domElement);
+    mount.appendChild(renderer.domElement);
 
     // Post-processing setup
     const composer = new EffectComposer(renderer);
@@ -293,8 +294,9 @@ if (footerElapsedTime > footerAnimationDelay) {
     // Cleanup on unmount
     return () => {
       window.removeEventListener('resize', handleResize);
-      if (mountRef.current) {
-        mountRef.current.removeChild(renderer.domElement);
+      if (mount) {
+        // Use the captured value for cleanup
+        mount.removeChild(renderer.domElement);
       }
     };
   }, []);

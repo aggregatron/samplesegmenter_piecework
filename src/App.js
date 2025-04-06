@@ -6,7 +6,6 @@ import DrumControls from './components/DrumControls';
 
 function App() {
   const [showContent, setShowContent] = useState(false); // State to control visibility
-  const [file, setFile] = useState(null);
   const [audioBuffer, setAudioBuffer] = useState(null);
   const [error, setError] = useState('');
   const [isRecording, setIsRecording] = useState(false);
@@ -37,8 +36,6 @@ function App() {
   const handleFileChange = async (file) => {
     setError('');
     if (file && (file.type === 'audio/wav' || file.type === 'audio/mpeg' || file.type === 'audio/mp4')) {
-      setFile(file);
-
       try {
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         const arrayBuffer = await file.arrayBuffer();
